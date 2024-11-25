@@ -19,12 +19,15 @@ async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
+    let port = (*utils::contants::PORT).clone();
+    let host_address =(*utils::contants::HOST_ADDRESS).clone();
+
     HttpServer::new(|| {
         App::new()
         .wrap(Logger::default())
         .service(greet)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((host_address, port))?
     .run()
     .await
 }
