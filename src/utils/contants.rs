@@ -14,5 +14,8 @@ fn set_host_address() -> String {
 
 fn set_port() -> u16 {
     dotenv::dotenv().ok();
-    env::var("PORT").unwrap().parse::<u16>()
+    env::var("PORT")
+        .unwrap()
+        .parse::<u16>()
+        .expect("Can't parse the port")
 }

@@ -1,17 +1,10 @@
-use actix_web::{get, middleware::Logger, web, App, HttpServer, Responder};
+use actix_web::{middleware::Logger, App, HttpServer};
 
-mod utils;
 mod routes;
-
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {name}!")
-}
+mod utils;
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
-
-    
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "actix_web=info");
     }
@@ -20,12 +13,12 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let port = (*utils::contants::PORT).clone();
-    let host_address =(*utils::contants::HOST_ADDRESS).clone();
+    let host_address = (*utils::contants::HOST_ADDRESS).clone();
 
     HttpServer::new(|| {
         App::new()
-        .wrap(Logger::default())
-        .service(greet)
+            .wrap(Logger::default())
+            .configure(routes::home_routes::config)
     })
     .bind((host_address, port))?
     .run()
