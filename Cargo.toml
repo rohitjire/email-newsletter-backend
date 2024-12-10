@@ -3,10 +3,16 @@ name = "email-newsletter-backend"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [".", "entity", "migration"]
+
 [dependencies]
+entity = { path = "entity" }
+migration = { path = "migration" }
 actix-web = "4.9.0"
 serde = "1.0.215"
 serde_json = "1.0.133"
 env_logger = "0.11.3"
 dotenv = "0.15.0"
 lazy_static = "1.5.0"
+sea-orm = { version = "1.1.0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
