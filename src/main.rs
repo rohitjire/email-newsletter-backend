@@ -27,7 +27,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(AppState { db: db.clone() }))
             .wrap(Logger::default())
             .configure(routes::home_routes::config)
-    })
+            .configure(routes::auth_routes::config)
+           })
     .bind((host_address, port))?
     .run()
     .await
