@@ -11,7 +11,7 @@ lazy_static! {
 
 fn set_host_address() -> String {
     dotenv::dotenv().ok();
-    env::var("ADDRESS").unwrap()
+    env::var("ADDRESS").unwrap_or("127.0.0.1".to_string())
 }
 
 fn set_port() -> u16 {
