@@ -3,7 +3,7 @@ use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
     http::header::AUTHORIZATION,
     middleware::Next,
-    Error,
+    Error, HttpMessage,
 };
 
 use crate::utils::{
@@ -29,9 +29,16 @@ pub async fn check_auth_middleware(
         .to_str()
         .unwrap()
         .replace("Bearer", "")
+        .trim()
         .to_owned();
-    let claim = decode_jwt(token);
-
+ 
+    let claim = decode_jwt(token.clone()).map_err(|err| {
+        eprintln!("JWT decoding error: {:?}", err);
+        Error::from(api_response::ApiResponse::new(401, "Invalid token".to_string()))
+    })?;
+ 
+    req.extensions_mut().insert(claim.claims);
+    
     next.call(req)
         .await
         .map_err(|err| Error::from(ApiResponse::new(500, err.to_string())))
