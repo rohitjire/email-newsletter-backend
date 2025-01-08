@@ -22,6 +22,12 @@ struct ArticleModel {
     pub image: Option<String>,
     pub user: Option<UserModel>
 }
+
+#[derive(Serialize,Deserialize)]
+struct CreateArticleModel {
+    pub title: String,
+    pub content: String
+}
  
 #[derive(Serialize,Deserialize)]
 struct UserModel {
@@ -33,9 +39,8 @@ struct UserModel {
 pub async fn create_article(
     app_state: web::Data<app_state::AppState>,
     claims:Claims,
-    article_model: web::Json<ArticleModel>,
+    article_model: web::Json<CreateArticleModel>,
 ) -> Result<api_response::ApiResponse, api_response::ApiResponse> {
-   
  
     let article_entity = entity::article::ActiveModel {
         title: Set(article_model.title.clone()),
@@ -46,7 +51,6 @@ pub async fn create_article(
         ..Default::default()
     };
  
- 
     article_entity
     .insert(&app_state.db)
     .await
@@ -54,7 +58,6 @@ pub async fn create_article(
  
     Ok(api_response::ApiResponse::new(200, "Article created successfully".to_owned()))
 }
- 
  
 #[get("/all-article")]
 pub async fn all_articles(
