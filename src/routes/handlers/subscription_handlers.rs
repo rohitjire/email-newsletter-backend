@@ -50,3 +50,26 @@ pub async fn subscribe_user(
 
     Ok(ApiResponse::new(200, "Subscribed successfully".to_owned()))
 }
+
+#[post("/unsubscribe-user")]
+pub async fn unsubscribe_user(
+    app_state: web::Data<AppState>,
+    claims: Claims,
+    subscription_request: web::Json<SubscriptionRequest>,
+) -> Result<ApiResponse, ApiResponse> {
+    let subscriber_id = claims.id;
+    let subscribed_to_id = subscription_request.user_id;
+
+    let delete_result = entity::subscription::Entity::delete_many()
+        .filter(entity::subscription::Column::SubscribedUserId.eq(subscribed_to_id))
+        .filter(entity::subscription::Column::SubscriberUserId.eq(subscriber_id))
+        .exec(&app_state.db)
+        .await
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+
+    if delete_result.rows_affected == 0 {
+        return Err(ApiResponse::new(404, "Subscription not found".to_owned()));
+    }
+
+    Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
+}
