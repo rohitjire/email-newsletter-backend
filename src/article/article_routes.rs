@@ -1,8 +1,9 @@
 use actix_web::{middleware::from_fn, web};
-use crate::routes::handlers::article_handlers;
- 
-use super::middlewares;
- 
+
+use crate::middlewares;
+
+use super::article_handlers;
+
 pub fn config(config: &mut web::ServiceConfig) {
     config.service(
         web::scope("secure/article")

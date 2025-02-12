@@ -8,9 +8,9 @@ use sea_orm::ActiveModelTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::ColumnTrait;
- 
+
 use crate::utils::{api_response, app_state, jwt::Claims};
- 
+
 #[derive(Serialize,Deserialize)]
 struct ArticleModel {
     pub id: i32,
@@ -28,20 +28,20 @@ struct CreateArticleModel {
     pub title: String,
     pub content: String
 }
- 
+
 #[derive(Serialize,Deserialize)]
 struct UserModel {
     name: String,
     email: String,
 }
- 
+
 #[post("/create")]
 pub async fn create_article(
     app_state: web::Data<app_state::AppState>,
     claims:Claims,
     article_model: web::Json<CreateArticleModel>,
 ) -> Result<api_response::ApiResponse, api_response::ApiResponse> {
- 
+
     let article_entity = entity::article::ActiveModel {
         title: Set(article_model.title.clone()),
         content: Set(article_model.content.clone()),
@@ -50,20 +50,42 @@ pub async fn create_article(
         created_at: Set(Utc::now().naive_local()),
         ..Default::default()
     };
- 
+
     article_entity
     .insert(&app_state.db)
     .await
     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
- 
+
+    // // Fetch subscribers
+    // let subscribers: Vec<entity::user::Model> = entity::subscription::Entity::find()
+    //     .filter(entity::subscription::Column::SubscriberUserId.eq(claims.id))
+    //     .find_with_related(entity::user::Entity)
+    //     .all(&app_state.db)
+    //     .await
+    //     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?
+    //     .into_iter()
+    //     .map(|(_, user)| user)
+    //     .collect();
+
+    // // Send email to subscribers
+    // for subscriber in subscribers {
+    //     send_email(
+    //         &subscriber.email,
+    //         "New Article Posted",
+    //         &format!("A new article titled '{}' has been posted.", article_model.title),
+    //     )
+    //     .await
+    //     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
+    // }
+
     Ok(api_response::ApiResponse::new(200, "Article created successfully".to_owned()))
 }
- 
+
 #[get("/all-article")]
 pub async fn all_articles(
     app_state: web::Data<app_state::AppState>,
 )-> Result<api_response::ApiResponse, api_response::ApiResponse> {
- 
+
     let articles: Vec<ArticleModel> = entity::article::Entity::find()
     .all(&app_state.db).await
     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?
@@ -82,17 +104,17 @@ pub async fn all_articles(
     ).collect();
     let res_str = serde_json::to_string(&articles)
     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
- 
+
     Ok(api_response::ApiResponse::new(200, res_str.to_owned()))
 }
- 
- 
+
+
 #[get("/get-by-uuid/{article_uuid}")]
 pub async fn one_article(
     app_state: web::Data<app_state::AppState>,
     article_uuid: web::Path<Uuid>,
 )-> Result<api_response::ApiResponse, api_response::ApiResponse> {
- 
+
     let articles: ArticleModel = entity::article::Entity::find()
     .filter(entity::article::Column::Uuid.eq(article_uuid.clone()))
     .find_also_related(entity::user::Entity)
@@ -113,16 +135,16 @@ pub async fn one_article(
     .ok_or(api_response::ApiResponse::new(404, "No article Found".to_string()))?;
     let res_str = serde_json::to_string(&articles)
     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
- 
+
     Ok(api_response::ApiResponse::new(200, res_str.to_owned()))
 }
- 
+
 #[get("/my-article")]
 pub async fn my_article(
     app_state: web::Data<app_state::AppState>,
     claim: Claims
 )-> Result<api_response::ApiResponse, api_response::ApiResponse> {
- 
+
     let articles: Vec<ArticleModel> = entity::article::Entity::find()
     .filter(entity::article::Column::UserId.eq(claim.id)).all(&app_state.db).await
     .map_err(|err| api_response::ApiResponse::new(500,err.to_string()))?
@@ -141,6 +163,6 @@ pub async fn my_article(
     ).collect();
     let res_str = serde_json::to_string(&articles)
     .map_err(|err| api_response::ApiResponse::new(500,err.to_string()))?;
- 
+
     Ok(api_response::ApiResponse::new(200, res_str.to_owned()))
 }

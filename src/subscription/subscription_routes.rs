@@ -1,7 +1,9 @@
 use actix_web::{middleware::from_fn, web};
-use crate::routes::handlers::subscription_handlers;
 
-use super::middlewares;
+use crate::middlewares;
+
+use super::subscription_handlers;
+
 
 pub fn config(config: &mut web::ServiceConfig) {
     config.service(
