@@ -5,8 +5,14 @@ use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 use utils::app_state::AppState;
 
-mod routes;
 mod utils;
+mod article;
+mod auth;
+mod email;
+mod health;
+mod subscription;
+mod user;
+mod middlewares;
 
 #[derive(Debug)]
 struct MainError {
@@ -62,11 +68,11 @@ async fn main() -> Result<(), MainError> {
         App::new()
             .app_data(web::Data::new(AppState { db: db.clone() }))
             .wrap(Logger::default())
-            .configure(routes::home_routes::config)
-            .configure(routes::auth_routes::config)
-            .configure(routes::user_routes::config)
-            .configure(routes::article_routes::config)
-            .configure(routes::subscription_routes::config)
+            .configure(health::health_routes::config)
+            .configure(auth::auth_routes::config)
+            .configure(user::user_routes::config)
+            .configure(article::article_routes::config)
+            .configure(subscription::subscription_routes::config)
     })
     .bind((host_address, port))
     .map_err(|err| MainError {message : err.to_string()})?
