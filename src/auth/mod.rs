@@ -1,5 +1,5 @@
-/// Module declarations for `auth` components.
-/// This module exposes handlers and route configurations.
+//! Module declarations for `auth` components.
+//! This module exposes handlers and route configurations.
 
 /// Module for authentication request handlers.
 pub mod auth_handlers;
