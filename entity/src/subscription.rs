@@ -19,8 +19,7 @@ pub enum Relation {
         from = "Column::SubscriberUserId",
         to = "super::user::Column::Id",
         on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
+        on_delete = "NoAction"    )]
     User2,
     #[sea_orm(
         belongs_to = "super::user::Entity",
@@ -30,6 +29,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     User1,
+}
+
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User1.def()
+    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}
