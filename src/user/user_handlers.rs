@@ -7,6 +7,19 @@ use crate::utils::{
     jwt::Claims,
 };
  
+/// Handler for fetching a user's details based on their authentication claims.
+///
+/// # Arguments
+/// * `app_state` - Shared application state containing the database connection.
+/// * `claim_data` - JWT claims containing the user's ID.
+///
+/// # Returns
+/// * `ApiResponse` - A JSON response containing the user's name and email if found.
+///
+/// # Errors
+/// * Returns a `500` error if database lookup fails.
+/// * Returns a `404` error if the user is not found.
+
 #[get("/get-user")]
 pub async fn user(
     app_state: web::Data<app_state::AppState>,
