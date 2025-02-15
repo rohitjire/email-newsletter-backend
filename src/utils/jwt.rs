@@ -23,6 +23,7 @@ pub struct Claims {
     pub id: i32,
 }
  
+ /// Implements extraction of claims from an Actix request.
 impl FromRequest for Claims {
     type Error = actix_web::Error;
  
@@ -41,6 +42,15 @@ impl FromRequest for Claims {
     }
 }
 
+/// Encodes a JWT token with the given email and user ID.
+///
+/// # Arguments
+/// * `email` - The email to include in the token.
+/// * `id` - The user ID to include in the token.
+///
+/// # Returns
+/// * `Ok(String)` - The encoded JWT token.
+/// * `Err(jsonwebtoken::errors::Error)` - If encoding fails.
 pub fn encode_jwt(email: String, id: i32) -> Result<String, jsonwebtoken::errors::Error> {
     let now = Utc::now();
     let expire = Duration::hours(24);
