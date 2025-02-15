@@ -17,13 +17,15 @@ lazy_static! {
     pub static ref SECRET: String = set_secret();
 }
 
+/// Retrieves the host address from the environment variables.
+/// Defaults to `127.0.0.1` if not set.
 fn set_host_address() -> String {
     dotenv::dotenv().ok();
     env::var("ADDRESS").unwrap_or("127.0.0.1".to_string())
 }
 
-/// Retrieves the host address from the environment variables.
-/// Defaults to `127.0.0.1` if not set.
+/// Retrieves the port number from the environment variables.
+/// Expects a valid u16 value.
 fn set_port() -> u16 {
     dotenv::dotenv().ok();
     env::var("PORT")
@@ -32,13 +34,13 @@ fn set_port() -> u16 {
         .expect("Can't parse the port")
 }
 
-/// Retrieves the port number from the environment variables.
-/// Expects a valid u16 value.
+/// Retrieves the database URL from the environment variables.
 fn set_database_url() -> String {
     dotenv::dotenv().ok();
     env::var("DATABASE_URL").unwrap()
 }
 
+/// Retrieves the secret key from the environment variables.
 fn set_secret() -> String {
     dotenv::dotenv().ok();
     env::var("SECRET").unwrap()
