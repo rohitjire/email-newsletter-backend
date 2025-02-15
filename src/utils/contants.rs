@@ -1,11 +1,19 @@
+/// Module for storing application constants.
+///
+/// This module loads configuration values from environment variables
+/// and provides them as static references using `lazy_static!`.
 use std::env;
 
 use lazy_static::lazy_static;
 
 lazy_static! {
+    /// Host address for the application server.
     pub static ref HOST_ADDRESS: String = set_host_address();
+    /// Port number for the application server.
     pub static ref PORT: u16 = set_port();
+    /// Database connection URL.
     pub static ref DATABASE_URL: String = set_database_url();
+    /// Secret key for JWT authentication.
     pub static ref SECRET: String = set_secret();
 }
 
