@@ -103,4 +103,16 @@ pub async fn my_subscriptions(
             .to(entity::subscription::Column::SubscribedUserId)
             .into(),
     )
+    .select_also(entity::user::Entity)
+    .all(&app_state.db)
+    .await
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?
+    .into_iter()
+    .filter_map(|(_subscription, user_opt)| {
+        user_opt.map(|user| SubscriptionResponse {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        })
+    })
 }
