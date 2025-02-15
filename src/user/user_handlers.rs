@@ -25,8 +25,9 @@ pub async fn user(
     app_state: web::Data<app_state::AppState>,
     claim_data: Claims,
 ) -> Result<api_response::ApiResponse,api_response::ApiResponse> {
+    
  
- 
+    // Fetch user by ID from the database
     let user_model = entity::user::Entity::find_by_id(claim_data.id)
         .one(&app_state.db)
         .await
@@ -35,7 +36,8 @@ pub async fn user(
             404,
             "User not found".to_owned(),
         ))?;
- 
+
+    // Return user details as a JSON response
     Ok(api_response::ApiResponse::new(
         200,
         format!("{{'name' : '{}' , 'email': '{}' }}" , user_model.name , user_model.email)
