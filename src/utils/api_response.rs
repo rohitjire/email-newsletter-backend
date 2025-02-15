@@ -27,6 +27,7 @@ impl ApiResponse {
     }
 }
 
+/// Converts the `ApiResponse` into an Actix-web `HttpResponse`.
 impl Responder for ApiResponse {
     type Body = BoxBody;
 
@@ -37,16 +38,19 @@ impl Responder for ApiResponse {
 }
 
 impl ResponseError for ApiResponse {
+    /// Returns the HTTP status code of the error response.
     fn status_code(&self) -> StatusCode {
         self.response_code
     }
  
+    /// Generates an error response with the appropriate status code and message body.
     fn error_response(&self) -> HttpResponse<BoxBody> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
         HttpResponse::new(self.status_code()).set_body(body)
     }
 }
  
+/// Formats the `ApiResponse` for display.
 impl Display for ApiResponse {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Error: {} \n Status Code: {}", self.body, self.status_code)
