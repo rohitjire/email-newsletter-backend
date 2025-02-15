@@ -4,6 +4,16 @@
 use lettre::{Message, SmtpTransport, Transport};
 use lettre::transport::smtp::authentication::Credentials;
 
+/// Sends an email using the provided recipient, subject, and body.
+///
+/// # Arguments
+/// * `to` - The recipient email address.
+/// * `subject` - The subject of the email.
+/// * `body` - The email message body.
+///
+/// # Returns
+/// * `Ok(())` if the email is sent successfully.
+/// * `Err(Box<dyn std::error::Error>)` if there is an error.
 pub async fn send_email(to: &str, subject: &str, body: &str) -> Result<(), Box<dyn std::error::Error>> {
     let email = Message::builder()
         .from("no-reply@example.com".parse()?)
