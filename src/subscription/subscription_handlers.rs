@@ -96,4 +96,11 @@ pub async fn my_subscriptions(
 ) -> Result<ApiResponse, ApiResponse> {
     let subscriptions = entity::subscription::Entity::find()
     .filter(entity::subscription::Column::SubscriberUserId.eq(claims.id))
+    .join_rev(
+        JoinType::InnerJoin,
+        entity::user::Entity::belongs_to(entity::subscription::Entity)
+            .from(entity::user::Column::Id)
+            .to(entity::subscription::Column::SubscribedUserId)
+            .into(),
+    )
 }
