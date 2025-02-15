@@ -1,3 +1,7 @@
+//! Main entry point for the Rust Email Newsletter Backend.
+//!
+//! This module initializes the Actix web server, connects to the database,
+//! runs migrations, and configures various application routes and middleware.
 use std::{error::Error, fmt::Display};
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
