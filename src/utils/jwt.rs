@@ -1,3 +1,7 @@
+/// Module for handling JSON Web Token (JWT) authentication.
+///
+/// This module provides functionality for encoding and decoding JWTs,
+/// as well as extracting claims from requests.
 use std::future;
 
 use actix_web::{FromRequest, HttpMessage};
