@@ -88,3 +88,11 @@ pub async fn unsubscribe_user(
 
     Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
 }
+
+#[get("/my-subscriptions")]
+pub async fn my_subscriptions(
+    app_state: web::Data<AppState>,
+    claims: Claims,
+) -> Result<ApiResponse, ApiResponse> {
+    
+}
