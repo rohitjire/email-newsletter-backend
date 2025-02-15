@@ -18,6 +18,7 @@ mod subscription;
 mod user;
 mod middlewares;
 
+/// Custom error struct for handling main function errors.
 #[derive(Debug)]
 struct MainError {
     message: String,
@@ -45,6 +46,13 @@ impl Error for MainError {
 
 }
 
+/// The main function that starts the Actix web server.
+///
+/// - Loads environment variables
+/// - Initializes logging
+/// - Connects to the database
+/// - Runs migrations
+/// - Sets up HTTP routes
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> Result<(), MainError> {
     if std::env::var_os("RUST_LOG").is_none() {
