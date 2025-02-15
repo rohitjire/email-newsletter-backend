@@ -125,3 +125,11 @@ pub async fn my_subscriptions(
  
     Ok(ApiResponse::new(200, res_str))
 }
+
+#[get("/my-subscribers")]
+pub async fn my_subscribers(
+    app_state: web::Data<AppState>,
+    claims: Claims,
+) -> Result<ApiResponse, ApiResponse> {
+    
+}
