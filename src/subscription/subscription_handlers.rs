@@ -4,12 +4,21 @@ use actix_web::{post, web};
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter, Set, ColumnTrait};
 use serde::Deserialize;
+use serde::Serialize;
+use sea_orm::FromQueryResult;
 use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
 
 /// Request model for subscription operations.
 #[derive(Deserialize)]
 struct SubscriptionRequest {
     user_id: i32,
+}
+
+#[derive(Serialize, FromQueryResult)]
+struct SubscriptionResponse {
+    id: i32,
+    name: String,
+    email: String,
 }
 
 /// Endpoint to subscribe to another user.
