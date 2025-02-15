@@ -108,11 +108,16 @@ pub async fn my_subscriptions(
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?
     .into_iter()
-    .filter_map(|(_subscription, user_opt)| {
+    .filter_map(|(_subscription, user_opt)|
         user_opt.map(|user| SubscriptionResponse {
             id: user.id,
             name: user.name,
             email: user.email,
-        })
-    })
+    }))
+    .collect::<Vec<SubscriptionResponse>>();
+ 
+    let res_str = serde_json::to_string(&subscribers)
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+ 
+    Ok(ApiResponse::new(200, res_str))
 }
