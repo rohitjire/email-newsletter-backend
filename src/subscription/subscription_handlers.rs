@@ -94,5 +94,6 @@ pub async fn my_subscriptions(
     app_state: web::Data<AppState>,
     claims: Claims,
 ) -> Result<ApiResponse, ApiResponse> {
-    
+    let subscriptions = entity::subscription::Entity::find()
+    .filter(entity::subscription::Column::SubscriberUserId.eq(claims.id))
 }
