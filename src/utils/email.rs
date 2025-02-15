@@ -1,3 +1,6 @@
+/// Module for sending emails using the Lettre crate.
+///
+/// Provides an asynchronous function to send emails via SMTP.
 use lettre::{Message, SmtpTransport, Transport};
 use lettre::transport::smtp::authentication::Credentials;
 
