@@ -71,6 +71,14 @@ pub fn encode_jwt(email: String, id: i32) -> Result<String, jsonwebtoken::errors
     )
 }
  
+ /// Decodes a JWT token and retrieves the claims.
+///
+/// # Arguments
+/// * `jwt` - The JWT token as a string.
+///
+/// # Returns
+/// * `Ok(TokenData<Claims>)` - The extracted claims.
+/// * `Err(jsonwebtoken::errors::Error)` - If decoding fails.
 pub fn decode_jwt(jwt: String) -> Result<TokenData<Claims>, jsonwebtoken::errors::Error> {
     let secret = (*contants::SECRET).clone();
     let claim_data: Result<TokenData<Claims>, jsonwebtoken::errors::Error> = decode(
