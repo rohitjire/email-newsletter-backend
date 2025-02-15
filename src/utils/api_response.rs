@@ -4,6 +4,7 @@
 use actix_web::{body::BoxBody, http::StatusCode, web, HttpResponse, Responder, ResponseError};
 use  std::fmt::Display;
 
+/// Represents an API response with a status code and a message body.
 #[derive(Debug)]
 pub struct ApiResponse {
     pub status_code: u16,
@@ -11,6 +12,11 @@ pub struct ApiResponse {
     response_code: StatusCode,
 }
 
+/// Creates a new `ApiResponse`.
+    ///
+    /// # Arguments
+    /// * `status_code` - The HTTP status code for the response.
+    /// * `body` - The response message body.
 impl ApiResponse {
     pub fn new(status_code: u16, body: String) -> Self {
         ApiResponse {
