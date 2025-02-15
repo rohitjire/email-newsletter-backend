@@ -1,3 +1,6 @@
+/// Module for handling API responses in Actix-web.
+///
+/// Provides a structured response format with status codes and error handling.
 use actix_web::{body::BoxBody, http::StatusCode, web, HttpResponse, Responder, ResponseError};
 use  std::fmt::Display;
 
