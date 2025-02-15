@@ -8,14 +8,18 @@ use actix_web::{FromRequest, HttpMessage};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, Validation};
 use serde::{Deserialize, Serialize};
- 
 use super::contants;
  
+ /// Structure representing JWT claims.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Claims {
+    /// Expiration time (Unix timestamp).
     pub exp: usize,
+    /// Issued-at time (Unix timestamp).
     pub iat: usize,
+    /// Email associated with the token.
     pub email: String,
+    /// User ID.
     pub id: i32,
 }
  
