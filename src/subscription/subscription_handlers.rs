@@ -1,8 +1,11 @@
 /// Handlers for user subscription operations.
 /// Provides endpoints to subscribe and unsubscribe from other users.
 use actix_web::{post, web};
+use actix_web::get;
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter, Set, ColumnTrait};
+use sea_orm::QuerySelect;
+use sea_orm::JoinType;
 use serde::Deserialize;
 use serde::Serialize;
 use sea_orm::FromQueryResult;
@@ -108,15 +111,16 @@ pub async fn my_subscriptions(
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?
     .into_iter()
-    .filter_map(|(_subscription, user_opt)|
+    .filter_map(|(_subscription, user_opt)| {
         user_opt.map(|user| SubscriptionResponse {
             id: user.id,
             name: user.name,
             email: user.email,
-    }))
+        })
+    })
     .collect::<Vec<SubscriptionResponse>>();
  
-    let res_str = serde_json::to_string(&subscribers)
+    let res_str = serde_json::to_string(&subscriptions)
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
  
     Ok(ApiResponse::new(200, res_str))
