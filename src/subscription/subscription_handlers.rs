@@ -1,15 +1,27 @@
 /// Handlers for user subscription operations.
 /// Provides endpoints to subscribe and unsubscribe from other users.
 use actix_web::{post, web};
+use actix_web::get;
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter, Set, ColumnTrait};
+use sea_orm::QuerySelect;
+use sea_orm::JoinType;
 use serde::Deserialize;
+use serde::Serialize;
+use sea_orm::FromQueryResult;
 use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
 
 /// Request model for subscription operations.
 #[derive(Deserialize)]
 struct SubscriptionRequest {
     user_id: i32,
+}
+
+#[derive(Serialize, FromQueryResult)]
+struct SubscriptionResponse {
+    id: i32,
+    name: String,
+    email: String,
 }
 
 /// Endpoint to subscribe to another user.
@@ -78,4 +90,38 @@ pub async fn unsubscribe_user(
     }
 
     Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
+}
+
+#[get("/my-subscriptions")]
+pub async fn my_subscriptions(
+    app_state: web::Data<AppState>,
+    claims: Claims,
+) -> Result<ApiResponse, ApiResponse> {
+    let subscriptions = entity::subscription::Entity::find()
+    .filter(entity::subscription::Column::SubscriberUserId.eq(claims.id))
+    .join_rev(
+        JoinType::InnerJoin,
+        entity::user::Entity::belongs_to(entity::subscription::Entity)
+            .from(entity::user::Column::Id)
+            .to(entity::subscription::Column::SubscribedUserId)
+            .into(),
+    )
+    .select_also(entity::user::Entity)
+    .all(&app_state.db)
+    .await
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?
+    .into_iter()
+    .filter_map(|(_subscription, user_opt)| {
+        user_opt.map(|user| SubscriptionResponse {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        })
+    })
+    .collect::<Vec<SubscriptionResponse>>();
+ 
+    let res_str = serde_json::to_string(&subscriptions)
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+ 
+    Ok(ApiResponse::new(200, res_str))
 }
