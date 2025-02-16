@@ -7,18 +7,18 @@ A backend service for managing email newsletters, built using Rust.
 📂 rust-email-newsletter-backend
 ├── entity
 │   └── src
-│       ├── article.rs
+│       ├── articles
 │       ├── mod.rs
 │       ├── prelude.rs
-│       ├── subscription.rs
-│       └── user.rs
+│       ├── subscriptions.rs
+│       └── users.rs
 ├── migration
 │   └── src
 │       ├── lib.rs
-│       ├── m20220101_000001_create_table.rs
-│       ├── m20221130_145647_create_user_table.rs
+│       ├── m20220101_000001_create_tables.rs
+│       ├── m20221130_145647_create_user_tables.rs
 │       ├── m20250102_221835_article_tables.rs
-│       └── m20250208_132108_subscription_table.rs
+│       └── m20250208_132108_subscription_tables.rs
 └── src
     ├── article
     │   ├── article_handlers.rs
@@ -29,12 +29,32 @@ A backend service for managing email newsletters, built using Rust.
     │   ├── auth_routes.rs
     │   └── mod.rs
     ├── email
+    │   ├── email.rs
     │   └── mod.rs
     ├── health
+    │   ├── health_handler.rs
+    │   ├── health_routes.rs
+    │   └── mod.rs
     ├── middlewares
+    │   ├── auth_middlewares.rs
+    │   └── mod.rs
     ├── subscription
+    │   ├── subscription_handlers.rs
+    │   ├── subscription_routes.rs
+    │   └── mod.rs
     ├── user
-    └── utils
+    │   ├── user_handlers.rs
+    │   ├── user_routes.rs
+    │   └── mod.rs
+    ├── utils
+    │   ├── api_responses.rs
+    │   ├── app_state.rs
+    │   ├── constants.rs
+    │   ├── errors.rs
+    │   ├── jwt.rs
+    │   ├── emails.rs
+    │   └── mod.rs
+    ├── main.rs
 ```
 
 ## 🛠 Installation
@@ -57,6 +77,9 @@ The server should be available at `http://localhost:8000`
 - **Auth Module**: Routes and handlers for authentication
 - **Email Module**: Email services
 - **Middleware**: Common middleware (e.g., authentication checks)
+- **Subscription Module**: Routes and handlers for subscriptions
+- **User Module**: User management
+- **Utilities**: Helpers such as JWT handling, error responses, and app state
 
 ## 🤝 Contributing
 1. Fork the repository
