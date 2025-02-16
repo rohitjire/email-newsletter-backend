@@ -22,5 +22,6 @@ pub fn config(config: &mut web::ServiceConfig) {
             .service(subscription_handlers::subscribe_user)// Endpoint to subscribe a user
             .service(subscription_handlers::unsubscribe_user)// Endpoint to unsubscribe a user
             .service(subscription_handlers::my_subscriptions)
+            .service(subscription_handlers::my_subscribers)
     );
 }

@@ -125,3 +125,37 @@ pub async fn my_subscriptions(
  
     Ok(ApiResponse::new(200, res_str))
 }
+
+#[get("/my-subscribers")]
+pub async fn my_subscribers(
+    app_state: web::Data<AppState>,
+    claims: Claims,
+) -> Result<ApiResponse, ApiResponse> {
+    let subscribers = entity::subscription::Entity::find()
+    .filter(entity::subscription::Column::SubscribedUserId.eq(claims.id))
+    .join_rev(
+        JoinType::InnerJoin,
+        entity::user::Entity::belongs_to(entity::subscription::Entity)
+            .from(entity::user::Column::Id)
+            .to(entity::subscription::Column::SubscriberUserId)
+            .into(),  // Convert RelationBuilder to RelationDef
+    )
+    .select_also(entity::user::Entity)
+    .all(&app_state.db)
+    .await
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?
+    .into_iter()
+    .filter_map(|(_subscription, user_opt)|
+        user_opt.map(|user| SubscriptionResponse {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+    }))
+    .collect::<Vec<SubscriptionResponse>>();
+ 
+    let res_str = serde_json::to_string(&subscribers)
+    .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+ 
+    Ok(ApiResponse::new(200, res_str))  
+    
+}
