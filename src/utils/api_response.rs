@@ -1,6 +1,10 @@
+/// Module for handling API responses in Actix-web.
+///
+/// Provides a structured response format with status codes and error handling.
 use actix_web::{body::BoxBody, http::StatusCode, web, HttpResponse, Responder, ResponseError};
 use  std::fmt::Display;
 
+/// Represents an API response with a status code and a message body.
 #[derive(Debug)]
 pub struct ApiResponse {
     pub status_code: u16,
@@ -8,6 +12,11 @@ pub struct ApiResponse {
     response_code: StatusCode,
 }
 
+/// Creates a new `ApiResponse`.
+    ///
+    /// # Arguments
+    /// * `status_code` - The HTTP status code for the response.
+    /// * `body` - The response message body.
 impl ApiResponse {
     pub fn new(status_code: u16, body: String) -> Self {
         ApiResponse {
@@ -18,6 +27,7 @@ impl ApiResponse {
     }
 }
 
+/// Converts the `ApiResponse` into an Actix-web `HttpResponse`.
 impl Responder for ApiResponse {
     type Body = BoxBody;
 
@@ -28,16 +38,19 @@ impl Responder for ApiResponse {
 }
 
 impl ResponseError for ApiResponse {
+    /// Returns the HTTP status code of the error response.
     fn status_code(&self) -> StatusCode {
         self.response_code
     }
  
+    /// Generates an error response with the appropriate status code and message body.
     fn error_response(&self) -> HttpResponse<BoxBody> {
         let body = BoxBody::new(web::BytesMut::from(self.body.as_bytes()));
         HttpResponse::new(self.status_code()).set_body(body)
     }
 }
  
+/// Formats the `ApiResponse` for display.
 impl Display for ApiResponse {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Error: {} \n Status Code: {}", self.body, self.status_code)
