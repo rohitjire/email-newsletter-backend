@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use actix_web::{post, web};
 use actix_web::get;
 use chrono::{NaiveDateTime, Utc};
-use sea_orm::Set;
+use sea_orm::{JoinType, QuerySelect, Set};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use sea_orm::ActiveModelTrait;
@@ -9,6 +11,7 @@ use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::ColumnTrait;
 
+use crate::utils::api_response::ApiResponse;
 use crate::utils::{api_response, app_state, jwt::Claims};
 
 #[derive(Serialize,Deserialize)]
@@ -40,6 +43,7 @@ pub async fn create_article(
     app_state: web::Data<app_state::AppState>,
     claims:Claims,
     article_model: web::Json<CreateArticleModel>,
+    query: web::Query<HashMap<String, String>>,
 ) -> Result<api_response::ApiResponse, api_response::ApiResponse> {
 
     let article_entity = entity::article::ActiveModel {
@@ -51,34 +55,54 @@ pub async fn create_article(
         ..Default::default()
     };
 
-    article_entity
-    .insert(&app_state.db)
-    .await
-    .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
+    
+    let inserted_article = article_entity
+        .insert(&app_state.db)
+        .await
+        .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
 
-    // // Fetch subscribers
-    // let subscribers: Vec<entity::user::Model> = entity::subscription::Entity::find()
-    //     .filter(entity::subscription::Column::SubscriberUserId.eq(claims.id))
-    //     .find_with_related(entity::user::Entity)
-    //     .all(&app_state.db)
-    //     .await
-    //     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?
-    //     .into_iter()
-    //     .map(|(_, user)| user)
-    //     .collect();
 
-    // // Send email to subscribers
-    // for subscriber in subscribers {
-    //     send_email(
-    //         &subscriber.email,
-    //         "New Article Posted",
-    //         &format!("A new article titled '{}' has been posted.", article_model.title),
-    //     )
-    //     .await
-    //     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
-    // }
+    let send_email = query.get("send_email")
+        .map(|v| v == "true")
+        .unwrap_or(true); // Default: true
 
-    Ok(api_response::ApiResponse::new(200, "Article created successfully".to_owned()))
+    if send_email {
+        let subscribers = entity::subscription::Entity::find()
+            .filter(entity::subscription::Column::SubscribedUserId.eq(claims.id))
+            .join_rev(
+                JoinType::InnerJoin,
+                entity::user::Entity::belongs_to(entity::subscription::Entity)
+                    .from(entity::user::Column::Id)
+                    .to(entity::subscription::Column::SubscriberUserId)
+                    .into(),
+            )
+            .select_also(entity::user::Entity)
+            .all(&app_state.db)
+            .await
+            .map_err(|err| ApiResponse::new(500, err.to_string()))?
+            .into_iter()
+            .filter_map(|(_, user)| user)
+            .collect::<Vec<entity::user::Model>>();
+
+        let article_link = "Click here".to_string();
+
+        for subscriber in subscribers {
+            let unsubscribe_link = format!(
+                "localhost:8080/subscription/unsubscribe-user?user_id={}&subscriber_id={}",
+                claims.id, subscriber.id
+            );
+
+            email_service::send_newsletter_email(
+                &subscriber.email,
+                &inserted_article.title,
+                &inserted_article.content[..50],
+                &article_link,
+                &unsubscribe_link,
+            )
+            .await
+            .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+        }
+    }
 }
 
 #[get("/all-article")]
