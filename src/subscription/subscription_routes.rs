@@ -21,5 +21,6 @@ pub fn config(config: &mut web::ServiceConfig) {
             .wrap(from_fn(middlewares::auth_middlewares::check_auth_middleware))// Auth Middleware
             .service(subscription_handlers::subscribe_user)// Endpoint to subscribe a user
             .service(subscription_handlers::unsubscribe_user)// Endpoint to unsubscribe a user
+            .service(subscription_handlers::my_subscriptions)
     );
 }
