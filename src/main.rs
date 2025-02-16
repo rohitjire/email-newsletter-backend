@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display};
+use std::{error::Error, fmt::Display, sync::Arc};
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use migration::{Migrator, MigratorTrait};
@@ -41,7 +41,7 @@ impl Error for MainError {
 
 }
 
-#[actix_web::main] // or #[tokio::main]
+#[actix_web::main]
 async fn main() -> Result<(), MainError> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "actix_web=info");
@@ -64,9 +64,11 @@ async fn main() -> Result<(), MainError> {
         message: err.to_string(),
     })?;
 
+    let db = Arc::new(db);
+
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(AppState { db: db.clone() }))
+            .app_data(web::Data::new(AppState { db: Arc::clone(&db) }))
             .wrap(Logger::default())
             .configure(health::health_routes::config)
             .configure(auth::auth_routes::config)
