@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix_web::{get, web};
 use sea_orm::EntityTrait;
  
@@ -19,17 +21,17 @@ use crate::utils::{
 /// # Errors
 /// * Returns a `500` error if database lookup fails.
 /// * Returns a `404` error if the user is not found.
-
 #[get("/get-user")]
 pub async fn user(
     app_state: web::Data<app_state::AppState>,
     claim_data: Claims,
 ) -> Result<api_response::ApiResponse,api_response::ApiResponse> {
     
+    let db = Arc::clone(&app_state.db);
  
     // Fetch user by ID from the database
     let user_model = entity::user::Entity::find_by_id(claim_data.id)
-        .one(&app_state.db)
+        .one(&*db)
         .await
         .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?
         .ok_or(api_response::ApiResponse::new(

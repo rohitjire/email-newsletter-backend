@@ -1,3 +1,13 @@
+
+use std::sync::Arc;
+use actix_web::{get, post, web};
+use chrono::Utc;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, FromQueryResult, JoinType, QueryFilter,
+    QuerySelect, Set,
+};
+use serde::{Deserialize, Serialize};
+
 /// Handlers for user subscription operations.
 /// Provides endpoints to subscribe and unsubscribe from other users.
 use actix_web::{post, web};
@@ -30,25 +40,34 @@ struct SubscriptionResponse {
 pub async fn subscribe_user(
     app_state: web::Data<AppState>,
     claims: Claims,
-    subscription_request: web::Json<SubscriptionRequest>,) -> Result<ApiResponse, ApiResponse> {
-
+    subscription_request: web::Json<SubscriptionRequest>,
+) -> Result<ApiResponse, ApiResponse> {
     let subscriber_id = claims.id;
-    let subscribed_to_id = subscription_request.user_id; 
+    let subscribed_to_id = subscription_request.user_id;
+
+    let db = Arc::clone(&app_state.db);
 
     if subscriber_id == subscribed_to_id {
-        return Err(ApiResponse::new(400, "Cannot subscribe to yourself.".to_owned()));
+        return Err(ApiResponse::new(
+            400,
+            "Cannot subscribe to yourself.".to_owned(),
+        ));
     }
 
     // Check if already subscribed
-    let existing_subscription = entity::subscription::Entity::find()
+    let is_already_subscribed = entity::subscription::Entity::find()
         .filter(entity::subscription::Column::SubscriberUserId.eq(subscriber_id))
         .filter(entity::subscription::Column::SubscribedUserId.eq(subscribed_to_id))
-        .one(&app_state.db)
+        .one(&*db)
         .await
-        .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?
+        .is_some();
 
-    if existing_subscription.is_some() {
-        return Err(ApiResponse::new(400, "Already subscribed to this user.".to_owned()));
+    if is_already_subscribed {
+        return Err(ApiResponse::new(
+            400,
+            "Already subscribed to this user.".to_owned(),
+        ));
     }
 
     // Insert new subscription
@@ -60,7 +79,7 @@ pub async fn subscribe_user(
     };
 
     subscription
-        .insert(&app_state.db)
+        .insert(&*db)
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
@@ -77,11 +96,12 @@ pub async fn unsubscribe_user(
 ) -> Result<ApiResponse, ApiResponse> {
     let subscriber_id = claims.id;
     let subscribed_to_id = subscription_request.user_id;
+    let db = Arc::clone(&app_state.db);
 
     let delete_result = entity::subscription::Entity::delete_many()
         .filter(entity::subscription::Column::SubscribedUserId.eq(subscribed_to_id))
         .filter(entity::subscription::Column::SubscriberUserId.eq(subscriber_id))
-        .exec(&app_state.db)
+        .exec(&*db)
         .await
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
@@ -89,6 +109,10 @@ pub async fn unsubscribe_user(
         return Err(ApiResponse::new(404, "Subscription not found".to_owned()));
     }
 
+    Ok(ApiResponse::new(
+        200,
+        "Unsubscribed successfully".to_owned(),
+    ))
     Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
 }
 
@@ -156,6 +180,5 @@ pub async fn my_subscribers(
     let res_str = serde_json::to_string(&subscribers)
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
  
-    Ok(ApiResponse::new(200, res_str))  
-    
+    Ok(ApiResponse::new(200, res_str))      
 }
