@@ -35,8 +35,7 @@ pub enum Relation {
         from = "Column::SubscriberUserId",
         to = "super::user::Column::Id",
         on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
+        on_delete = "NoAction"    )]
     User2,
     
     /// Relationship: Subscription belongs to a subscribed user.
@@ -48,6 +47,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     User1,
+}
+
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User1.def()
+    }
 }
 
 /// Defines custom behavior for the active model (if needed in the future).
