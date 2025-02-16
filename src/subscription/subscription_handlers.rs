@@ -1,15 +1,19 @@
+/// Handlers for user subscription operations.
+/// Provides endpoints to subscribe and unsubscribe from other users.
 use actix_web::{post, web};
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter, Set, ColumnTrait};
 use serde::Deserialize;
-
 use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
 
+/// Request model for subscription operations.
 #[derive(Deserialize)]
 struct SubscriptionRequest {
     user_id: i32,
 }
 
+/// Endpoint to subscribe to another user.
+/// Validates and inserts a subscription record.
 #[post("/subscribe-user")]
 pub async fn subscribe_user(
     app_state: web::Data<AppState>,
@@ -51,6 +55,8 @@ pub async fn subscribe_user(
     Ok(ApiResponse::new(200, "Subscribed successfully".to_owned()))
 }
 
+/// Endpoint to unsubscribe from a user.
+/// Deletes a subscription record if found.
 #[post("/unsubscribe-user")]
 pub async fn unsubscribe_user(
     app_state: web::Data<AppState>,
