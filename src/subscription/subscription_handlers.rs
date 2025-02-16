@@ -7,19 +7,12 @@ use sea_orm::{
     QuerySelect, Set,
 };
 use serde::{Deserialize, Serialize};
+use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
+
 
 /// Handlers for user subscription operations.
 /// Provides endpoints to subscribe and unsubscribe from other users.
-use actix_web::{post, web};
-use actix_web::get;
-use chrono::Utc;
-use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter, Set, ColumnTrait};
-use sea_orm::QuerySelect;
-use sea_orm::JoinType;
-use serde::Deserialize;
-use serde::Serialize;
-use sea_orm::FromQueryResult;
-use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
+
 
 /// Request model for subscription operations.
 #[derive(Deserialize)]
@@ -109,10 +102,6 @@ pub async fn unsubscribe_user(
         return Err(ApiResponse::new(404, "Subscription not found".to_owned()));
     }
 
-    Ok(ApiResponse::new(
-        200,
-        "Unsubscribed successfully".to_owned(),
-    ))
     Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
 }
 
@@ -121,6 +110,9 @@ pub async fn my_subscriptions(
     app_state: web::Data<AppState>,
     claims: Claims,
 ) -> Result<ApiResponse, ApiResponse> {
+
+    let db = Arc::clone(&app_state.db);
+
     let subscriptions = entity::subscription::Entity::find()
     .filter(entity::subscription::Column::SubscriberUserId.eq(claims.id))
     .join_rev(
@@ -131,7 +123,7 @@ pub async fn my_subscriptions(
             .into(),
     )
     .select_also(entity::user::Entity)
-    .all(&app_state.db)
+    .all(&*db)
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?
     .into_iter()
@@ -143,10 +135,10 @@ pub async fn my_subscriptions(
         })
     })
     .collect::<Vec<SubscriptionResponse>>();
- 
+
     let res_str = serde_json::to_string(&subscriptions)
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
- 
+
     Ok(ApiResponse::new(200, res_str))
 }
 
@@ -155,6 +147,9 @@ pub async fn my_subscribers(
     app_state: web::Data<AppState>,
     claims: Claims,
 ) -> Result<ApiResponse, ApiResponse> {
+
+    let db = Arc::clone(&app_state.db);
+
     let subscribers = entity::subscription::Entity::find()
     .filter(entity::subscription::Column::SubscribedUserId.eq(claims.id))
     .join_rev(
@@ -165,7 +160,7 @@ pub async fn my_subscribers(
             .into(),  // Convert RelationBuilder to RelationDef
     )
     .select_also(entity::user::Entity)
-    .all(&app_state.db)
+    .all(&*db)
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?
     .into_iter()
@@ -176,9 +171,9 @@ pub async fn my_subscribers(
             email: user.email,
     }))
     .collect::<Vec<SubscriptionResponse>>();
- 
+
     let res_str = serde_json::to_string(&subscribers)
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
- 
+
     Ok(ApiResponse::new(200, res_str))      
 }
