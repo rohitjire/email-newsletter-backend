@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use actix_web::{post, web};
 use actix_web::get;
@@ -11,11 +12,12 @@ use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::ColumnTrait;
 
+use crate::email::email_service;
 use crate::utils::api_response::ApiResponse;
 use crate::utils::{api_response, app_state, jwt::Claims};
 
 #[derive(Serialize,Deserialize)]
-struct ArticleModel {
+pub struct ArticleModel {
     pub id: i32,
     pub title: String,
     pub content: String,
@@ -27,13 +29,13 @@ struct ArticleModel {
 }
 
 #[derive(Serialize,Deserialize)]
-struct CreateArticleModel {
+pub struct CreateArticleModel {
     pub title: String,
     pub content: String
 }
 
 #[derive(Serialize,Deserialize)]
-struct UserModel {
+pub struct UserModel {
     name: String,
     email: String,
 }
@@ -41,10 +43,11 @@ struct UserModel {
 #[post("/create")]
 pub async fn create_article(
     app_state: web::Data<app_state::AppState>,
-    claims:Claims,
+    claims: Claims,
     article_model: web::Json<CreateArticleModel>,
-    query: web::Query<HashMap<String, String>>,
+    query: web::Query<HashMap<String, String>>, 
 ) -> Result<api_response::ApiResponse, api_response::ApiResponse> {
+    let db = Arc::clone(&app_state.db);
 
     let article_entity = entity::article::ActiveModel {
         title: Set(article_model.title.clone()),
@@ -55,9 +58,8 @@ pub async fn create_article(
         ..Default::default()
     };
 
-    
     let inserted_article = article_entity
-        .insert(&app_state.db)
+        .insert(&*db)
         .await
         .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
 
@@ -77,7 +79,7 @@ pub async fn create_article(
                     .into(),
             )
             .select_also(entity::user::Entity)
-            .all(&app_state.db)
+            .all(&*db)
             .await
             .map_err(|err| ApiResponse::new(500, err.to_string()))?
             .into_iter()
@@ -103,6 +105,8 @@ pub async fn create_article(
             .map_err(|err| ApiResponse::new(500, err.to_string()))?;
         }
     }
+
+    Ok(api_response::ApiResponse::new(200, "Article created successfully".to_owned()))
 }
 
 #[get("/all-article")]
@@ -110,8 +114,11 @@ pub async fn all_articles(
     app_state: web::Data<app_state::AppState>,
 )-> Result<api_response::ApiResponse, api_response::ApiResponse> {
 
+    let db = Arc::clone(&app_state.db);
+
+
     let articles: Vec<ArticleModel> = entity::article::Entity::find()
-    .all(&app_state.db).await
+    .all(&*db).await
     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?
     .into_iter()
     .map(|article: entity::article::Model|
@@ -139,10 +146,12 @@ pub async fn one_article(
     article_uuid: web::Path<Uuid>,
 )-> Result<api_response::ApiResponse, api_response::ApiResponse> {
 
+    let db = Arc::clone(&app_state.db);
+
     let articles: ArticleModel = entity::article::Entity::find()
     .filter(entity::article::Column::Uuid.eq(article_uuid.clone()))
     .find_also_related(entity::user::Entity)
-    .one(&app_state.db).await
+    .one(&*db).await
     .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?
     .map(|article|
         ArticleModel {
@@ -169,8 +178,10 @@ pub async fn my_article(
     claim: Claims
 )-> Result<api_response::ApiResponse, api_response::ApiResponse> {
 
+    let db = Arc::clone(&app_state.db);
+
     let articles: Vec<ArticleModel> = entity::article::Entity::find()
-    .filter(entity::article::Column::UserId.eq(claim.id)).all(&app_state.db).await
+    .filter(entity::article::Column::UserId.eq(claim.id)).all(&*db).await
     .map_err(|err| api_response::ApiResponse::new(500,err.to_string()))?
     .into_iter()
     .map(|article|
