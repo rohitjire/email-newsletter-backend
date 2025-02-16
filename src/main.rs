@@ -14,6 +14,9 @@ mod subscription;
 mod user;
 mod middlewares;
 
+#[cfg(test)]
+mod testcases;
+
 #[derive(Debug)]
 struct MainError {
     message: String,
