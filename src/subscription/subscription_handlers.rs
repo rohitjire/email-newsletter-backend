@@ -73,7 +73,7 @@ pub async fn subscribe_user(
 pub async fn unsubscribe_user(
     app_state: web::Data<AppState>,
     claims: Claims,
-    subscription_request: web::Json<SubscriptionRequest>,
+    subscription_request: web::Query<SubscriptionRequest>,
 ) -> Result<ApiResponse, ApiResponse> {
     let subscriber_id = claims.id;
     let subscribed_to_id = subscription_request.user_id;
