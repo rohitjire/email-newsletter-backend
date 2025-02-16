@@ -1,5 +1,5 @@
-use std::sync::Arc;
-
+/// Handlers for authentication endpoints.
+/// This module provides `register` and `login` endpoints for user management.
 use actix_web::{post, web};
 use sea_orm::ActiveModelTrait;
 use sea_orm::ColumnTrait;
@@ -10,11 +10,13 @@ use sea_orm::Set;
 use serde::Deserialize;
 use serde::Serialize;
 use sha256::digest;
+use std::sync::Arc;
 
 use crate::utils::api_response::ApiResponse;
 use crate::utils::jwt::encode_jwt;
 use crate::utils::{api_response, app_state};
 
+/// Request model for user registration.
 #[derive(Serialize, Deserialize)]
 pub struct RegisterModel {
     pub name: String,
@@ -22,12 +24,15 @@ pub struct RegisterModel {
     pub password: String,
 }
 
+/// Request model for user login.
 #[derive(Serialize, Deserialize)]
 pub struct LoginModel {
     pub email: String,
     pub password: String,
 }
 
+/// Endpoint to register a new user.
+/// Creates a new user record and returns their ID.
 #[post("/register")]
 pub async fn register(
     app_state: web::Data<app_state::AppState>,
@@ -52,6 +57,8 @@ pub async fn register(
     ))
 }
 
+/// Endpoint to log in an existing user.
+/// Validates user credentials and returns a JWT token.
 #[post("/login")]
 pub async fn login(
     app_state: web::Data<app_state::AppState>,

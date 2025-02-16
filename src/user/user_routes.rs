@@ -4,6 +4,13 @@ use crate::middlewares;
 
 use super::user_handlers;
 
+/// Configures user-related routes and applies authentication middleware.
+///
+/// # Arguments
+/// * `config` - A mutable reference to the Actix web service configuration.
+///
+/// This function sets up a scoped route under `/user`, ensuring that requests
+/// pass through the authentication middleware before reaching the handler.
 pub fn config(config: &mut web::ServiceConfig) {
     config.service(
         web::scope("/user")

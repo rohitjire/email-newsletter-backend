@@ -1,3 +1,7 @@
+//! Main entry point for the Rust Email Newsletter Backend.
+//!
+//! This module initializes the Actix web server, connects to the database,
+//! runs migrations, and configures various application routes and middleware.
 use std::{error::Error, fmt::Display, sync::Arc};
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
@@ -17,6 +21,7 @@ mod middlewares;
 #[cfg(test)]
 mod testcases;
 
+/// Custom error struct for handling main function errors.
 #[derive(Debug)]
 struct MainError {
     message: String,
@@ -44,7 +49,14 @@ impl Error for MainError {
 
 }
 
-#[actix_web::main]
+/// The main function that starts the Actix web server.
+///
+/// - Loads environment variables
+/// - Initializes logging
+/// - Connects to the database
+/// - Runs migrations
+/// - Sets up HTTP routes
+#[actix_web::main] 
 async fn main() -> Result<(), MainError> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "actix_web=info");
