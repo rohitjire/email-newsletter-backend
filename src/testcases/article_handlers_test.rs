@@ -134,4 +134,37 @@ pub mod tests {
 
         assert_eq!(resp.status(), StatusCode::OK);
     }
+
+    #[actix_web::test]
+    #[serial]
+    pub async fn test_my_articles() {
+        let token = encode_jwt("author@example.com".to_string(), 1).unwrap();
+        let test_uuid = Uuid::new_v4();
+        let mock_db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![vec![entity::article::Model {
+                id: 1,
+                title: "My Article".to_string(),
+                content: "My Content".to_string(),
+                user_id: 1,
+                uuid: test_uuid,
+                created_at: Utc::now().naive_local(),
+                image: None,
+            }]])
+            .into_connection();
+
+        let mock_db = Arc::new(mock_db);
+        let app_state = web::Data::new(AppState {
+            db: Arc::clone(&mock_db),
+        });
+        let app =
+            test::init_service(App::new().app_data(app_state.clone()).configure(config)).await;
+
+        let req = test::TestRequest::get()
+            .uri("/secure/article/my-article")
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
 }
