@@ -89,16 +89,28 @@ pub async fn login(
 
     let db = Arc::clone(&app_state.db);
 
+    // Validate email format
+    if !login_json.email.contains('@') {
+        return Err(ApiResponse::new(400, "Invalid email format".to_owned()));
+    }
+
+    // Check if the user exists
     let user_data = entity::user::Entity::find()
-        .filter(
-            Condition::all()
-                .add(entity::user::Column::Email.eq(&login_json.email))
-                .add(entity::user::Column::Password.eq(digest(&login_json.password))),
-        )
+        .filter(entity::user::Column::Email.eq(&login_json.email))
         .one(&*db)
         .await
-        .map_err(|err| ApiResponse::new(500, err.to_string()))?
-        .ok_or(ApiResponse::new(404, "User not Found".to_owned()))?;
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+
+    if user_data.is_none() {
+        return Err(ApiResponse::new(404, "User not found".to_owned()));
+    }
+
+    let user_data = user_data.unwrap();
+
+    // Validate password
+    if user_data.password != digest(&login_json.password) {
+        return Err(ApiResponse::new(401, "Incorrect password".to_owned()));
+    }
 
     let token = encode_jwt(user_data.email, user_data.id)
         .map_err(|err| ApiResponse::new(500, err.to_string()))?;
