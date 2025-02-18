@@ -57,7 +57,7 @@ A backend service for managing email newsletters, built using Rust.
     │   ├── jwt.rs
     │   ├── emails.rs
     │   └── mod.rs
-    ├── main.rs
+    └── main.rs
 ```
 
 ## 🛠 Installation
