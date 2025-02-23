@@ -1,0 +1,68 @@
+#[cfg(test)]
+pub mod tests {
+    use actix_web::web;
+    use actix_web::test;
+    use actix_web::http::StatusCode;
+    use crate::health::health_handler::test;
+    use serial_test::serial;
+    use crate::utils::jwt::encode_jwt;
+    use sea_orm::MockDatabase;
+    use sea_orm::DatabaseBackend;
+    use chrono::Utc;
+    use sea_orm::MockExecResult;
+    use crate::Arc;
+    use crate::AppState;
+    use crate::App;
+    use crate::auth::auth_routes::config;
+    use actix_web::test::TestRequest;
+    // use crate::web::Data;
+    use actix_web::web::Data;
+    // use actix_web_lab::sse::Data;
+    
+    
+    
+    #[actix_web::test]
+    #[serial]
+    pub async fn test_subscribe_user() {
+        let token = encode_jwt("author@example.com".to_string(), 2).unwrap();
+
+        let mock_db = MockDatabase::new(DatabaseBackend::Postgres)
+            // First query: Check for existing subscription (returns None)
+            .append_query_results(vec![vec![]] as Vec<Vec<entity::subscription::Model>>)
+            // Second query: Insert new subscription
+            .append_query_results(vec![vec![entity::subscription::Model {
+                id: 1,
+                subscribed_user_id: 1,
+                subscriber_user_id: 2,
+                created_at: Utc::now().naive_local(),
+            }]])
+            .append_exec_results(vec![MockExecResult {
+                last_insert_id: 1,
+                rows_affected: 1,
+            }])
+            .into_connection();
+
+        let mock_db = Arc::new(mock_db);
+
+        let app_state = web::Data::new(AppState {
+            db: Arc::clone(&mock_db),
+        });
+
+        let app =
+            test::init_service(App::new().app_data(app_state.clone()).configure(config)).await;
+
+        let subscription_request = SubscriptionRequest { user_id: 1 };
+
+        let req = test::TestRequest::post()
+            .uri("/subscription/subscribe-user")
+            .insert_header(("Content-Type", "application/json"))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .set_json(&subscription_request)
+            .to_request();
+
+        let resp = test::call_service(&app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+
+}
