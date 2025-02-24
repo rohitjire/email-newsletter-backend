@@ -30,7 +30,7 @@ pub struct SubscriptionResponse {
 /// Endpoint to subscribe to another user.
 /// Validates and inserts a subscription record.
 #[post("/subscribe-user")]
-pub async fn subscribe_user(
+pub async fn subscribe_user (
     app_state: web::Data<AppState>,
     claims: Claims,
     subscription_request: web::Json<SubscriptionRequest>,
@@ -81,7 +81,7 @@ pub async fn subscribe_user(
 
 /// Endpoint to unsubscribe from a user.
 /// Deletes a subscription record if found.
-#[post("/unsubscribe-user")]
+#[get("/unsubscribe-user")]
 pub async fn unsubscribe_user(
     app_state: web::Data<AppState>,
     claims: Claims,

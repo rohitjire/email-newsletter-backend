@@ -3,7 +3,6 @@
 use actix_web::{post, web};
 use sea_orm::ActiveModelTrait;
 use sea_orm::ColumnTrait;
-use sea_orm::Condition;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::Set;

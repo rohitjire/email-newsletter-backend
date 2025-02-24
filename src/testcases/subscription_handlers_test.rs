@@ -1,19 +1,17 @@
 #[cfg(test)]
 pub mod tests {
-    use actix_web::web;
-    use actix_web::test;
-    use actix_web::http::StatusCode;
-    use serial_test::serial;
-    use crate::utils::jwt::encode_jwt;
-    use sea_orm::MockDatabase;
-    use sea_orm::DatabaseBackend;
-    use chrono::Utc;
-    use sea_orm::MockExecResult;
-    use crate::Arc;
-    use crate::AppState;
-    use crate::App;
-    use crate::auth::auth_routes::config;
+    use std::sync::Arc;
+
     use crate::subscription::subscription_handlers::SubscriptionRequest;
+    use crate::subscription::subscription_routes::config;
+    use crate::utils::app_state::AppState;
+    use crate::utils::jwt::encode_jwt;
+    use actix_web::http::StatusCode;
+    use actix_web::web;
+    use actix_web::{test, App};
+    use chrono::Utc;
+    use sea_orm::{DatabaseBackend, MockDatabase, MockExecResult};
+    use serial_test::serial;
 
 
     #[actix_web::test]
