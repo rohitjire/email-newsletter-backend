@@ -3,7 +3,6 @@ pub mod tests {
     use actix_web::web;
     use actix_web::test;
     use actix_web::http::StatusCode;
-    use crate::health::health_handler::test;
     use serial_test::serial;
     use crate::utils::jwt::encode_jwt;
     use sea_orm::MockDatabase;
@@ -14,13 +13,9 @@ pub mod tests {
     use crate::AppState;
     use crate::App;
     use crate::auth::auth_routes::config;
-    use actix_web::test::TestRequest;
-    // use crate::web::Data;
-    use actix_web::web::Data;
-    // use actix_web_lab::sse::Data;
-    
-    
-    
+    use crate::subscription::subscription_handlers::SubscriptionRequest;
+
+
     #[actix_web::test]
     #[serial]
     pub async fn test_subscribe_user() {

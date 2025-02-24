@@ -15,16 +15,16 @@ use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
 
 
 /// Request model for subscription operations.
-#[derive(Deserialize)]
-struct SubscriptionRequest {
-    user_id: i32,
+#[derive(Serialize,Deserialize)]
+pub struct SubscriptionRequest {
+    pub user_id: i32,
 }
 
 #[derive(Serialize, FromQueryResult)]
-struct SubscriptionResponse {
-    id: i32,
-    name: String,
-    email: String,
+pub struct SubscriptionResponse {
+    pub id: i32,
+    pub name: String,
+    pub email: String,
 }
 
 /// Endpoint to subscribe to another user.
