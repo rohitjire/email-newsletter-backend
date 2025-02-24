@@ -86,11 +86,13 @@ pub async fn create_article(
             .filter_map(|(_, user)| user)
             .collect::<Vec<entity::user::Model>>();
 
-        let article_link = "Click here".to_string();
+        let article_link =format!(
+            "http://localhost:8080/article/get-by-uuid/{}",inserted_article.uuid
+        );
 
         for subscriber in subscribers {
             let unsubscribe_link = format!(
-                "localhost:8080/subscription/unsubscribe-user?user_id={}&subscriber_id={}",
+                "http://localhost:8080/subscription/unsubscribe-user?user_id={}&subscriber_id={}",
                 claims.id, subscriber.id
             );
 

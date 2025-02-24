@@ -1,28 +1,27 @@
 use lettre::{message::header::ContentType, transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport};
+use std::fs;
+use std::path::Path;
 
 
 pub async fn send_newsletter_email(email: &str, title: &str, snippet: &str, article_link: &str, unsubscribe_link: &str) -> Result<(), String> {
-    let html_body = format!(
-        r#"
-        <html>
-            <body>
-                <h2>New Article: {}</h2>
-                <p>{}...</p>
-                <a href="{}">Read More</a>
-                <br><br>
-                <a href="{}" style="color: red;">Unsubscribe</a>
-            </body>
-        </html>
-        "#,
-        title, snippet, article_link, unsubscribe_link
-    );
+     // Read the email template
+     let template_path = Path::new("src/templates/email_template.html");
+     let template_content = fs::read_to_string(template_path)
+         .map_err(|err| format!("Failed to read email template: {}", err))?;
+ 
+     // Replace placeholders with actual values
+     let email_body = template_content
+         .replace("{{ title }}", title)
+         .replace("{{ snippet }}", snippet)
+         .replace("{{ article_link }}", article_link)
+         .replace("{{ unsubscribe_link }}", unsubscribe_link);
 
     let email = Message::builder()
         .from("MS_Qi9HwZ@trial-vywj2lp8qekg7oqz.mlsender.net".parse().unwrap())
         .to(email.parse().unwrap())
-        .subject("New Article Notification")
+        .subject("📢 New Article Notification")
         .header(ContentType::TEXT_HTML)
-        .body(html_body)
+        .body(email_body)
         .map_err(|e| e.to_string())?;
 
     let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
