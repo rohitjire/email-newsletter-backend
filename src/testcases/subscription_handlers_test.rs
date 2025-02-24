@@ -59,5 +59,43 @@ pub mod tests {
 
         assert_eq!(resp.status(), StatusCode::OK);
     }
+    
+    #[actix_web::test]
+    #[serial]
+    pub async fn test_unsubscribe_user() {
+        let token = encode_jwt("author@example.com".to_string(), 2).unwrap();
+
+        let mock_db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![vec![entity::subscription::Model {
+                id: 1,
+                subscribed_user_id: 1,
+                subscriber_user_id: 2,
+                created_at: Utc::now().naive_local(),
+            }]])
+            .append_exec_results(vec![MockExecResult {
+                last_insert_id: 1,
+                rows_affected: 1,
+            }])
+            .into_connection();
+
+        let mock_db = Arc::new(mock_db);
+
+        let app_state = web::Data::new(AppState {
+            db: Arc::clone(&mock_db),
+        });
+
+        let app =
+            test::init_service(App::new().app_data(app_state.clone()).configure(config)).await;
+
+        let req = test::TestRequest::get()
+            .uri("/subscription/unsubscribe-user?user_id=1")
+            .insert_header(("Content-Type", "application/json"))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .to_request();
+
+        let resp = test::call_service(&app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
 
 }
