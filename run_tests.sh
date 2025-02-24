@@ -1,6 +1,10 @@
-cargo test test_register
-cargo test test_login
-cargo test test_create_article_without_email
-cargo test test_one_article
-cargo test test_all_articles
-cargo test test_one_article
+cargo test test_register -- --nocapture
+cargo test test_login -- --nocapture
+cargo test test_create_article_without_email -- --nocapture
+cargo test test_one_article -- --nocapture
+cargo test test_all_articles -- --nocapture
+cargo test test_subscribe_user -- --nocapture
+cargo test test_unsubscribe_user -- --nocapture
+cargo test test_my_subscriptions -- --nocapture
+cargo test test_my_subscribers -- --nocapture
+cargo test test_get_user -- --nocapture
