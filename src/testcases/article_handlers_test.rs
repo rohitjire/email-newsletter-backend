@@ -1,3 +1,5 @@
+/// Integration tests for article handlers.
+/// This module contains tests for creating, fetching, and listing articles.
 #[cfg(test)]
 pub mod tests {
     use std::sync::Arc;
@@ -12,6 +14,7 @@ pub mod tests {
     use serial_test::serial;
     use uuid::Uuid;
 
+    /// Test creating an article without sending an email.
     #[actix_web::test]
     #[serial]
     pub async fn test_create_article_without_email() {
@@ -66,6 +69,7 @@ pub mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
+    /// Test fetching all articles.
     #[actix_web::test]
     #[serial]
     pub async fn test_all_articles() {
@@ -96,6 +100,7 @@ pub mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
+    /// Test fetching a single article by UUID.
     #[actix_web::test]
     #[serial]
     pub async fn test_one_article() {
@@ -135,6 +140,7 @@ pub mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
+    /// Test fetching articles belonging to the authenticated user.
     #[actix_web::test]
     #[serial]
     pub async fn test_my_articles() {

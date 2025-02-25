@@ -1,3 +1,5 @@
+/// Integration tests for subscription handlers.
+/// This module contains tests for subscribing, unsubscribing, and retrieving subscriptions.
 #[cfg(test)]
 pub mod tests {
     use std::sync::Arc;
@@ -13,7 +15,7 @@ pub mod tests {
     use sea_orm::{DatabaseBackend, MockDatabase, MockExecResult};
     use serial_test::serial;
 
-
+    /// Test subscribing to a user.
     #[actix_web::test]
     #[serial]
     pub async fn test_subscribe_user() {
@@ -58,6 +60,7 @@ pub mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
     
+    /// Test unsubscribing from a user.
     #[actix_web::test]
     #[serial]
     pub async fn test_unsubscribe_user() {
@@ -96,6 +99,7 @@ pub mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
+    /// Test retrieving the authenticated user's subscriptions.
     #[actix_web::test]
     #[serial]
     pub async fn test_my_subscriptions() {
@@ -138,6 +142,7 @@ pub mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
+    /// Test retrieving the authenticated user's subscribers.
     #[actix_web::test]
     #[serial]
     pub async fn test_my_subscribers() {

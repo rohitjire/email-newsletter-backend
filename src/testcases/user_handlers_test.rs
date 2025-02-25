@@ -1,3 +1,5 @@
+/// Integration tests for user handlers.
+/// This module contains tests for retrieving user information.
 #[cfg(test)]
 pub mod tests {
     use std::sync::Arc;
@@ -10,10 +12,13 @@ pub mod tests {
     use sea_orm::{DatabaseBackend, MockDatabase};
     use serial_test::serial;
 
+    /// Test retrieving a user profile.
     #[actix_web::test]
     #[serial]
     pub async fn test_get_user() {
         let token = encode_jwt("author@test.com".to_string(), 1).unwrap();
+
+        // Mock database with a sample user
         let mock_db = MockDatabase::new(DatabaseBackend::Postgres)
             .append_query_results(vec![vec![entity::user::Model {
                 id: 1,
