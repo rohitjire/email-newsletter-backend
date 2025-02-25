@@ -42,8 +42,13 @@ A backend service for managing email newsletters, built using Rust.
     │   ├── subscription_handlers.rs
     │   ├── subscription_routes.rs
     │   └── mod.rs
+    ├── templates
+    │   └── email_template.html
     ├──testcases
     │   ├── article_handelers.rs
+    │   ├── auth_handler_test.rs
+    │   ├── subscription_handlers_test.rs
+    │   ├── user_handlers_test.rs
     │   └── mod.rs
     ├── user
     │   ├── user_handlers.rs

@@ -1,3 +1,5 @@
+/// Integration tests for authentication handlers.
+/// This module contains tests for user registration and login.
 #[cfg(test)]
 pub mod tests {
     use std::sync::Arc;
@@ -10,6 +12,7 @@ pub mod tests {
     use sea_orm::{DatabaseBackend, MockDatabase, MockExecResult};
     use serial_test::serial;
 
+    /// Test user registration endpoint.
     #[actix_web::test]
     #[serial]
     pub async fn test_register() {
@@ -54,6 +57,7 @@ pub mod tests {
     }
 
 
+    /// Test user login endpoint.
     #[actix_web::test]
     #[serial]
     pub async fn test_login() {
