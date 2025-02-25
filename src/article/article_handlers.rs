@@ -1,3 +1,8 @@
+//! Handlers for managing articles in the newsletter backend.
+//! 
+//! This module provides functions for creating, retrieving, and listing articles,
+//! along with sending notification emails to subscribers.
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -16,6 +21,7 @@ use crate::email::email_service;
 use crate::utils::api_response::ApiResponse;
 use crate::utils::{api_response, app_state, jwt::Claims};
 
+/// Represents an article with associated metadata.
 #[derive(Serialize,Deserialize)]
 pub struct ArticleModel {
     pub id: i32,
@@ -28,6 +34,7 @@ pub struct ArticleModel {
     pub user: Option<UserModel>
 }
 
+/// Represents the request model for creating an article.
 #[derive(Serialize,Deserialize)]
 pub struct CreateArticleModel {
     pub title: String,
