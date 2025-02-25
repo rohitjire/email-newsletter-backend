@@ -41,12 +41,17 @@ pub struct CreateArticleModel {
     pub content: String
 }
 
+/// Represents a user with minimal details.
 #[derive(Serialize,Deserialize)]
 pub struct UserModel {
     name: String,
     email: String,
 }
 
+/// Handler for creating a new article.
+/// 
+/// This function inserts a new article into the database and optionally sends
+/// a newsletter email to subscribers.
 #[post("/create")]
 pub async fn create_article(
     app_state: web::Data<app_state::AppState>,
@@ -118,6 +123,7 @@ pub async fn create_article(
     Ok(api_response::ApiResponse::new(200, "Article created successfully".to_owned()))
 }
 
+/// Handler for retrieving all articles.
 #[get("/all-article")]
 pub async fn all_articles(
     app_state: web::Data<app_state::AppState>,
@@ -148,7 +154,7 @@ pub async fn all_articles(
     Ok(api_response::ApiResponse::new(200, res_str.to_owned()))
 }
 
-
+/// Handler for retrieving a single article by its UUID.
 #[get("/get-by-uuid/{article_uuid}")]
 pub async fn one_article(
     app_state: web::Data<app_state::AppState>,
@@ -181,6 +187,7 @@ pub async fn one_article(
     Ok(api_response::ApiResponse::new(200, res_str.to_owned()))
 }
 
+/// Retrieves all articles created by the authenticated user.
 #[get("/my-article")]
 pub async fn my_article(
     app_state: web::Data<app_state::AppState>,
