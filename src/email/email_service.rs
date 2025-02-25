@@ -1,8 +1,32 @@
+//! Email Service Module
+//!
+//! This module provides functionality for sending newsletter emails
+//! using the `lettre` crate for SMTP transport.
+//!
+//! ## Features
+//! - Reads an HTML email template from a file.
+//! - Replaces placeholders with actual content.
+//! - Sends emails using SMTP with authentication.
+
 use lettre::{message::header::ContentType, transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport};
 use std::fs;
 use std::path::Path;
 
-
+/// Sends a newsletter email to a subscriber.
+///
+/// This function reads an email template from a file, replaces placeholders with actual values,
+/// and sends an email using an SMTP server.
+///
+/// # Arguments
+/// * `email` - The recipient's email address.
+/// * `title` - The title of the newsletter article.
+/// * `snippet` - A short snippet of the article.
+/// * `article_link` - A URL to the full article.
+/// * `unsubscribe_link` - A URL for the recipient to unsubscribe.
+///
+/// # Returns
+/// * `Ok(())` on success.
+/// * `Err(String)` if an error occurs while sending the email.
 pub async fn send_newsletter_email(email: &str, title: &str, snippet: &str, article_link: &str, unsubscribe_link: &str) -> Result<(), String> {
      // Read the email template
      let template_path = Path::new("src/templates/email_template.html");
