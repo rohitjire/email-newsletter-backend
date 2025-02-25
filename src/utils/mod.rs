@@ -1,6 +1,5 @@
-/// Module that organizes utility components for the project.
-///
-/// This module includes configurations, authentication utilities, and response handling.
+//! Module that organizes utility components for the project.
+//! This module includes configurations, authentication utilities, and response handling.
 
 /// Contains global constants used across the application.
 pub mod contants;
@@ -10,3 +9,5 @@ pub mod api_response;
 pub mod app_state;
 /// Handles JSON Web Token (JWT) authentication and validation.
 pub mod jwt;
+/// Defines the custom error type `MainError` used for error handling in the application.
+pub mod main_error;

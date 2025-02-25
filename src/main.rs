@@ -2,12 +2,12 @@
 //!
 //! This module initializes the Actix web server, connects to the database,
 //! runs migrations, and configures various application routes and middleware.
-use std::{error::Error, fmt::Display, sync::Arc};
+use std::sync::Arc;
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
-use utils::app_state::AppState;
+use utils::{app_state::AppState, main_error::MainError};
 
 mod utils;
 mod article;
@@ -20,34 +20,6 @@ mod middlewares;
 
 #[cfg(test)]
 mod testcases;
-
-/// Custom error struct for handling main function errors.
-#[derive(Debug)]
-struct MainError {
-    message: String,
-}
-
-impl Display for MainError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"Error: {}", self.message)
-    }
-}
-
-
-impl Error for MainError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        None
-    }
-
-    fn description(&self) -> &str {
-        &self.message
-    }
-
-    fn cause(&self) -> Option<&dyn Error> {
-        self.source()
-    }
-
-}
 
 /// The main function that starts the Actix web server.
 ///
