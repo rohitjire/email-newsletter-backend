@@ -40,6 +40,7 @@ pub async fn send_newsletter_email(email: &str, title: &str, snippet: &str, arti
          .replace("{{ article_link }}", article_link)
          .replace("{{ unsubscribe_link }}", unsubscribe_link);
 
+    // Construct the email message
     let email = Message::builder()
         .from("MS_Qi9HwZ@trial-vywj2lp8qekg7oqz.mlsender.net".parse().unwrap())
         .to(email.parse().unwrap())
@@ -48,12 +49,14 @@ pub async fn send_newsletter_email(email: &str, title: &str, snippet: &str, arti
         .body(email_body)
         .map_err(|e| e.to_string())?;
 
+    // Set up SMTP transport
     let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
         .unwrap()
         .credentials(Credentials::new("MS_Qi9HwZ@trial-vywj2lp8qekg7oqz.mlsender.net".to_string(),
          "mssp.RuCBk2w.7dnvo4ded5nl5r86.oS6avvF".to_string()))
         .port(587)
         .build();
+    // Send the email
     mailer.send(&email).map_err(|e| e.to_string())?;
     Ok(())
 }
