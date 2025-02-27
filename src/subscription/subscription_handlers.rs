@@ -105,7 +105,7 @@ pub async fn unsubscribe_user(
     Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
 }
 
-/// Endpoint to unsubscribe from a user.
+/// Endpoint to unsubscribe from a user from email (query param modified).
 /// Deletes a subscription record if found.
 #[get("/unsubscribe-user-from-email")]
 pub async fn unsubscribe_user_from_email(
