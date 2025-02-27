@@ -19,7 +19,7 @@ use crate::utils::{api_response::ApiResponse, app_state::AppState, jwt::Claims};
 pub struct SubscriptionRequest {
     pub user_id: i32,
 }
-
+/// Response model for subscription operations.
 #[derive(Serialize, FromQueryResult)]
 pub struct SubscriptionResponse {
     pub id: i32,
@@ -131,6 +131,8 @@ pub async fn unsubscribe_user_from_email(
     Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
 }
 
+/// Endpoint to get subscriptions of the user.
+/// Finds all the subscribed users.
 #[get("/my-subscriptions")]
 pub async fn my_subscriptions(
     app_state: web::Data<AppState>,
@@ -168,6 +170,8 @@ pub async fn my_subscriptions(
     Ok(ApiResponse::new(200, res_str))
 }
 
+/// Endpoint to get subscribers of the user.
+/// Finds all the subscribers of the users.
 #[get("/my-subscribers")]
 pub async fn my_subscribers(
     app_state: web::Data<AppState>,
