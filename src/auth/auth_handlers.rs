@@ -41,7 +41,7 @@ pub async fn register(
     let db = Arc::clone(&app_state.db);
 
     // Validate email format
-    if !register_json.email.contains('@') {
+    if !register_json.email.contains('@') || !register_json.email.contains('.') {
         return Err(ApiResponse::new(400, "Invalid email format".to_owned()));
     }
 
@@ -71,9 +71,10 @@ pub async fn register(
     .await
     .map_err(|err| ApiResponse::new(500, err.to_string()))?;
 
+    // Return user details as a JSON response
     Ok(api_response::ApiResponse::new(
         200,
-        format!("{}", user_model.id),
+        format!("{{ 'id' : '{}' ,'name' : '{}' , 'email': '{}' }}" ,user_model.id, user_model.name , user_model.email)
     ))
 }
 
@@ -89,7 +90,7 @@ pub async fn login(
     let db = Arc::clone(&app_state.db);
 
     // Validate email format
-    if !login_json.email.contains('@') {
+    if !login_json.email.contains('@') || !login_json.email.contains('.') {
         return Err(ApiResponse::new(400, "Invalid email format".to_owned()));
     }
 
