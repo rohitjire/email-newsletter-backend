@@ -17,11 +17,14 @@ use super::subscription_handlers;
 /// * `config` - Actix Web `ServiceConfig` to which routes are added.
 pub fn config(config: &mut web::ServiceConfig) {
     config.service(
-        web::scope("/subscription")
+        web::scope("/secure/subscription")
             .wrap(from_fn(middlewares::auth_middlewares::check_auth_middleware))// Auth Middleware
             .service(subscription_handlers::subscribe_user)// Endpoint to subscribe a user
             .service(subscription_handlers::unsubscribe_user)// Endpoint to unsubscribe a user
             .service(subscription_handlers::my_subscriptions)
             .service(subscription_handlers::my_subscribers)
+    )
+    .service(web::scope("/subscription")
+        .service(subscription_handlers::unsubscribe_user_from_email)
     );
 }

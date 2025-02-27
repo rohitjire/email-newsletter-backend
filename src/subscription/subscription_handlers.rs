@@ -1,5 +1,5 @@
 
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 use actix_web::{get, post, web};
 use chrono::Utc;
 use sea_orm::{
@@ -88,6 +88,32 @@ pub async fn unsubscribe_user(
     subscription_request: web::Query<SubscriptionRequest>,
 ) -> Result<ApiResponse, ApiResponse> {
     let subscriber_id = claims.id;
+    let subscribed_to_id = subscription_request.user_id;
+    let db = Arc::clone(&app_state.db);
+
+    let delete_result = entity::subscription::Entity::delete_many()
+        .filter(entity::subscription::Column::SubscribedUserId.eq(subscribed_to_id))
+        .filter(entity::subscription::Column::SubscriberUserId.eq(subscriber_id))
+        .exec(&*db)
+        .await
+        .map_err(|err| ApiResponse::new(500, err.to_string()))?;
+
+    if delete_result.rows_affected == 0 {
+        return Err(ApiResponse::new(404, "Subscription not found".to_owned()));
+    }
+
+    Ok(ApiResponse::new(200, "Unsubscribed successfully".to_owned()))
+}
+
+/// Endpoint to unsubscribe from a user.
+/// Deletes a subscription record if found.
+#[get("/unsubscribe-user-from-email")]
+pub async fn unsubscribe_user_from_email(
+    app_state: web::Data<AppState>,
+    claims: web::Query<HashMap<String, String>>,
+    subscription_request: web::Query<SubscriptionRequest>,
+) -> Result<ApiResponse, ApiResponse> {
+    let subscriber_id = claims.get("subscriber_id").and_then(|s| s.parse::<i32>().ok()).unwrap();
     let subscribed_to_id = subscription_request.user_id;
     let db = Arc::clone(&app_state.db);
 
