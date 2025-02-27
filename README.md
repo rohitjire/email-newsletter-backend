@@ -58,9 +58,8 @@ A backend service for managing email newsletters, built using Rust.
     │   ├── api_responses.rs
     │   ├── app_state.rs
     │   ├── constants.rs
-    │   ├── errors.rs
     │   ├── jwt.rs
-    │   ├── emails.rs
+    │   ├── main_error.rs
     │   └── mod.rs
     └── main.rs
 ```
