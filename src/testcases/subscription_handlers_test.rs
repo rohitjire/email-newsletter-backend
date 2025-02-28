@@ -49,7 +49,7 @@ pub mod tests {
         let subscription_request = SubscriptionRequest { user_id: 1 };
 
         let req = test::TestRequest::post()
-            .uri("/subscription/subscribe-user")
+            .uri("/secure/subscription/subscribe-user")
             .insert_header(("Content-Type", "application/json"))
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .set_json(&subscription_request)
@@ -89,7 +89,7 @@ pub mod tests {
             test::init_service(App::new().app_data(app_state.clone()).configure(config)).await;
 
         let req = test::TestRequest::get()
-            .uri("/subscription/unsubscribe-user?user_id=1")
+            .uri("/secure/subscription/unsubscribe-user?user_id=1")
             .insert_header(("Content-Type", "application/json"))
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .to_request();
@@ -132,7 +132,7 @@ pub mod tests {
             test::init_service(App::new().app_data(app_state.clone()).configure(config)).await;
 
         let req = test::TestRequest::get()
-            .uri("/subscription/my-subscriptions")
+            .uri("/secure/subscription/my-subscriptions")
             .insert_header(("Content-Type", "application/json"))
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .to_request();
@@ -175,7 +175,7 @@ pub mod tests {
             test::init_service(App::new().app_data(app_state.clone()).configure(config)).await;
 
         let req = test::TestRequest::get()
-            .uri("/subscription/my-subscribers")
+            .uri("/secure/subscription/my-subscribers")
             .insert_header(("Content-Type", "application/json"))
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .to_request();
