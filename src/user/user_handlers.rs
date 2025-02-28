@@ -10,6 +10,7 @@ use crate::utils::{
     jwt::Claims,
 };
 
+///Represents a user with minimal details.
 #[derive(Serialize,Deserialize)]
 pub struct UserModel {
     pub id: i32,
