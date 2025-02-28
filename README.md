@@ -94,6 +94,3 @@ The server should be available at `http://localhost:8000`
 3. Commit your changes (`git commit -m 'Add feature'`)
 4. Push to the branch (`git push origin feature-branch`)
 5. Create a Pull Request
-
-## 📜 License
-This project is licensed under the MIT License.
