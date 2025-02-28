@@ -104,7 +104,7 @@ pub async fn create_article(
 
         for subscriber in subscribers {
             let unsubscribe_link = format!(
-                "http://localhost:8080/subscription/unsubscribe-user?user_id={}&subscriber_id={}",
+                "http://localhost:8080/subscription/unsubscribe-user-from-email?user_id={}&subscriber_id={}",
                 claims.id, subscriber.id
             );
 
