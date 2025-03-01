@@ -42,7 +42,7 @@ pub async fn send_newsletter_email(email: &str, title: &str, snippet: &str, arti
 
     // Construct the email message
     let email = Message::builder()
-        .from("MS_Qi9HwZ@trial-vywj2lp8qekg7oqz.mlsender.net".parse().unwrap())
+        .from("username".parse().unwrap())
         .to(email.parse().unwrap())
         .subject("📢 New Article Notification")
         .header(ContentType::TEXT_HTML)
@@ -52,8 +52,8 @@ pub async fn send_newsletter_email(email: &str, title: &str, snippet: &str, arti
     // Set up SMTP transport
     let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
         .unwrap()
-        .credentials(Credentials::new("MS_Qi9HwZ@trial-vywj2lp8qekg7oqz.mlsender.net".to_string(),
-         "mssp.RuCBk2w.7dnvo4ded5nl5r86.oS6avvF".to_string()))
+        .credentials(Credentials::new("username".to_string(),
+         "password".to_string()))
         .port(587)
         .build();
     // Send the email
